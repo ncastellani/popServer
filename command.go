@@ -78,7 +78,7 @@ func (cmd PassCommand) Run(c *Client, args []string) (int, error) {
 	c.password = args[0]
 
 	// call the login backend
-	user, err := c.backend.Login(c.conn.RemoteAddr().String(), c.username, c.password)
+	user, err := c.backend.Login(c.conn.RemoteAddr().String(), c.username, c.password, c.writer)
 	if err != nil {
 		c.writeErr(err.Error())
 		return STATE_AUTHORIZATION, nil

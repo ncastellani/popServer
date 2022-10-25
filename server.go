@@ -76,6 +76,7 @@ func (s *Server) Close() error {
 // return the server greeting and setup a Client to handle the connection
 func (s *Server) serve(conn net.Conn) {
 	client := newClient(conn, s.Backend)
-	client.writeOk(s.Greeting) // respond with the server GREETING
+	client.writer = s.Logger.Writer() // set the logger as the default io writer for logging
+	client.writeOk(s.Greeting)        // respond with the server GREETING
 	client.handle()
 }

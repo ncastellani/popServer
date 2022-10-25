@@ -16,6 +16,7 @@ type Client struct {
 	lastCommand  string                // last executed command on the session
 	currentState int                   // current state of the session (AUTH/TRANSACTION/UPDATE)
 	commands     map[string]Executable // map POP comamnds into its execution handler
+	writer       io.Writer             // writer for logging
 
 	backend Backend // backend operations source
 	user    User    // user (email account) operations source
@@ -29,6 +30,7 @@ func newClient(conn net.Conn, back Backend) *Client {
 	s := Client{
 		conn:    conn,
 		backend: back,
+		writer:  io.Discard,
 	}
 
 	commands := make(map[string]Executable)
