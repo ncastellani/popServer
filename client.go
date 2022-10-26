@@ -61,8 +61,12 @@ func (c *Client) writeErr(msg string, args ...interface{}) {
 }
 
 // send a multi line response on the wire
-func (s *Client) writeMulti(msgs []string) {
+func (s *Client) writeMulti(msgs []string, stripEmpty bool) {
 	for _, line := range msgs {
+		if line == "" && stripEmpty {
+			continue
+		}
+
 		line := strings.Trim(line, "\r")
 		if strings.HasPrefix(line, ".") {
 			fmt.Fprintf(s.conn, ".%s\r\n", line)

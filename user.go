@@ -7,11 +7,11 @@ type User interface {
 	Unlock() error
 
 	Stat() (messages, octets int, err error)
-	List() (octets map[int]int, err error)
+	List() (octets map[int]int, msgCount int, err error)
 	ListMessage(msgID int) (exists bool, octets int, err error)
 	Retr(msgID int) (message string, err error)
 	Dele(msgID int) error
 	Rset() error
-	Uidl() (uids map[int]string, err error)
+	Uidl() (uids map[int]string, msgCount int, err error)
 	UidlMessage(msgID int) (exists bool, uid string, err error)
 }

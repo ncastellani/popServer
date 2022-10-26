@@ -148,19 +148,19 @@ func (cmd ListCommand) Run(c *Client, args []string) (int, error) {
 
 	} else {
 
-		octets, err := c.user.List()
+		octets, msgCount, err := c.user.List()
 		if err != nil {
 			return 0, fmt.Errorf("error calling LIST [user: %v] [err: %v]", c.username, err)
 		}
 
-		c.writeOk("%d messages", len(octets))
+		c.writeOk("%d messages out of %v", len(octets), msgCount)
 
-		messagesList := make([]string, len(octets))
+		messagesList := make([]string, msgCount+1)
 		for i, octet := range octets {
 			messagesList[i] = fmt.Sprintf("%d %d", i, octet)
 		}
 
-		c.writeMulti(messagesList)
+		c.writeMulti(messagesList, true)
 	}
 
 	return STATE_TRANSACTION, nil
@@ -187,12 +187,13 @@ func (cmd RetrCommand) Run(c *Client, args []string) (int, error) {
 
 	message, err := c.user.Retr(msgId)
 	if err != nil {
-		return 0, fmt.Errorf("error calling 'RETR %v' [user: %v] [err: %v]", msgId, c.username, err)
+		c.writeErr(err.Error())
+		return STATE_TRANSACTION, nil
 	}
 
 	lines := strings.Split(message, "\n")
 	c.writeOk("")
-	c.writeMulti(lines)
+	c.writeMulti(lines, false)
 
 	return STATE_TRANSACTION, nil
 }
@@ -289,19 +290,19 @@ func (cmd UidlCommand) Run(c *Client, args []string) (int, error) {
 
 	} else {
 
-		uids, err := c.user.Uidl()
+		uids, msgCount, err := c.user.Uidl()
 		if err != nil {
 			return 0, fmt.Errorf("Error calling UIDL for user %s: %v", c.user, err)
 		}
 
-		c.writeOk("%d messages", len(uids))
+		c.writeOk("%d messages out of %v", len(uids), msgCount+1)
 
-		uidsList := make([]string, len(uids))
+		uidsList := make([]string, msgCount)
 		for i, uid := range uids {
 			uidsList[i] = fmt.Sprintf("%d %s", i, uid)
 		}
 
-		c.writeMulti(uidsList)
+		c.writeMulti(uidsList, true)
 
 	}
 
@@ -316,7 +317,7 @@ func (cmd CapaCommand) Run(c *Client, args []string) (int, error) {
 	commands := []string{"USER", "UIDL"}
 
 	c.writeOk("")
-	c.writeMulti(commands)
+	c.writeMulti(commands, true)
 
 	return c.currentState, nil
 }
