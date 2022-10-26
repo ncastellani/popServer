@@ -295,9 +295,9 @@ func (cmd UidlCommand) Run(c *Client, args []string) (int, error) {
 			return 0, fmt.Errorf("Error calling UIDL for user %s: %v", c.user, err)
 		}
 
-		c.writeOk("%d messages out of %v", len(uids), msgCount+1)
+		c.writeOk("%d messages out of %v", len(uids), msgCount)
 
-		uidsList := make([]string, msgCount)
+		uidsList := make([]string, msgCount+1)
 		for i, uid := range uids {
 			uidsList[i] = fmt.Sprintf("%d %s", i, uid)
 		}
