@@ -4,15 +4,17 @@ import (
 	"crypto/tls"
 	"log"
 	"net"
+	"time"
 )
 
 // required values for starting up a new POP server
 type Server struct {
-	Greeting  string      // welcome message sent on inbound connection
-	Address   string      // host and port to expose the TCP server
-	Backend   Backend     // backend implemented by the user to handle data
-	TLSConfig *tls.Config // config for handling TLS connections
-	Logger    *log.Logger // used to print-out debug data
+	Greeting  string        // welcome message sent on inbound connection
+	Address   string        // host and port to expose the TCP server
+	Backend   Backend       // backend implemented by the user to handle data
+	Timeout   time.Duration // time until close an opened connection
+	TLSConfig *tls.Config   // config for handling TLS connections
+	Logger    *log.Logger   // used to print-out debug data
 
 	listener net.Listener // net package server listener
 }
@@ -75,7 +77,7 @@ func (s *Server) Close() error {
 
 // return the server greeting and setup a Client to handle the connection
 func (s *Server) serve(conn net.Conn) {
-	client := newClient(conn, s.Backend)
+	client := newClient(conn, s.Backend, s.Timeout)
 	client.writer = s.Logger.Writer() // set the logger as the default io writer for logging
 	client.writeOk(s.Greeting)        // respond with the server GREETING
 	client.handle()

@@ -17,6 +17,7 @@ type Client struct {
 	currentState int                   // current state of the session (AUTH/TRANSACTION/UPDATE)
 	commands     map[string]Executable // map POP comamnds into its execution handler
 	writer       io.Writer             // writer for logging
+	timeout      time.Duration         // timeout until closing an open connection
 
 	backend Backend // backend operations source
 	user    User    // user (email account) operations source
@@ -26,11 +27,12 @@ type Client struct {
 	password string
 }
 
-func newClient(conn net.Conn, back Backend) *Client {
+func newClient(conn net.Conn, back Backend, timeout time.Duration) *Client {
 	s := Client{
 		conn:    conn,
 		backend: back,
 		writer:  io.Discard,
+		timeout: timeout,
 	}
 
 	commands := make(map[string]Executable)
@@ -88,7 +90,7 @@ func (s *Client) parseInput(input string) (string, []string) {
 // handle an inbound connection
 func (s *Client) handle() error {
 	defer s.conn.Close()
-	s.conn.SetReadDeadline(time.Now().Add(1 * time.Minute))
+	s.conn.SetReadDeadline(time.Now().Add(s.timeout))
 	s.isAlive = true
 	s.currentState = STATE_AUTHORIZATION
 
@@ -105,11 +107,10 @@ func (s *Client) handle() error {
 				return err
 			}
 
-			// !! unlock the user
-			//if len(c.user) > 0 {
-			//	log.Printf("Unlocking user %s due to connection error ", c.user)
-			//	c.backend.Unlock(c.user)
-			//}
+			// unlock the user
+			if len(s.username) > 0 {
+				s.user.Unlock()
+			}
 
 			break
 		}
