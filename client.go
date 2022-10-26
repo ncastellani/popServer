@@ -90,7 +90,7 @@ func (s *Client) parseInput(input string) (string, []string) {
 // handle an inbound connection
 func (s *Client) handle() error {
 	defer s.conn.Close()
-	s.conn.SetReadDeadline(time.Now().Add(s.timeout))
+	s.conn.SetDeadline(time.Now().Add(s.timeout))
 	s.isAlive = true
 	s.currentState = STATE_AUTHORIZATION
 
