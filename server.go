@@ -40,7 +40,6 @@ func (s *Server) ListenAndServe() error {
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
-			s.Logger.Printf("error while accepting new inbound connection [err: %v]", err)
 			continue
 		}
 
@@ -61,7 +60,6 @@ func (s *Server) ListenAndServeTLS() error {
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
-			s.Logger.Printf("error while accepting new inbound connection [err: %v]", err)
 			continue
 		}
 
